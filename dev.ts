@@ -34,7 +34,7 @@ const svg = renderCard({
   } as any,
   langs: {
     totalBytes: mock.langs.totalBytes,
-    top: mock.langs.top.map((l) => ({ name: l.name, bytes: l.bytes })) as any
+    top: mock.langs.top.map((l) => ({ name: l.name, bytes: l.bytes, color: (l as any).color ?? null })) as any
   },
   streak: { current: mock.streak.current, longest: mock.streak.longest },
   nowPlaying: mock.nowPlaying,

@@ -9,6 +9,12 @@ function rotateAround(cx: number, cy: number, deg: number): string {
   return `translate(${cx} ${cy}) rotate(${deg}) translate(${-cx} ${-cy})`;
 }
 
+function isHexColor(input: unknown): input is string {
+  if (typeof input !== "string") return false;
+  const s = input.trim();
+  return /^#([0-9a-fA-F]{6})$/.test(s) || /^#([0-9a-fA-F]{3})$/.test(s);
+}
+
 export function renderUserCard(input: {
   user: GitHubUser;
   activity: GitHubActivityStats;
@@ -23,7 +29,9 @@ export function renderUserCard(input: {
   // Layered paper-card aesthetic inspired by the provided reference photo.
   const width = input.width ?? 560;
   const tokens = xaiTokens();
-  const pad = 24;
+  const height = input.height ?? 300;
+  const compact = height <= 200;
+  const pad = compact ? 12 : 24;
 
   const rows: Array<{ label: string; value: string }> = [
     { label: "commits", value: input.activity.totalCommits.toLocaleString("en-US") },
@@ -34,9 +42,9 @@ export function renderUserCard(input: {
 
   const body: string[] = [];
 
-  const height = input.height ?? 300;
   const paperW = width - pad * 2;
-  const paperH = Math.max(220, height - pad * 2);
+  const basePaperH = Math.max(0, height - pad * 2);
+  const paperH = compact ? basePaperH : Math.max(220, basePaperH);
 
   // Background (dark canvas)
   body.push(roundedRect(0, 0, width, height, 4, { fill: tokens.bg, stroke: tokens.border, strokeWidth: 1 }));
@@ -50,9 +58,23 @@ export function renderUserCard(input: {
   const px = pad;
   const py = pad;
 
-  const paperBack1 = { x: px + 18, y: py + 8, w: paperW - 24, h: paperH - 56, r: 2, rot: -2.2 };
-  const paperBack2 = { x: px + 6, y: py + 30, w: paperW - 8, h: paperH - 36, r: 2, rot: 1.4 };
-  const paperFront = { x: px, y: py + 14, w: paperW, h: paperH, r: 2, rot: 0 };
+  const paperFront = { x: px, y: py + (compact ? 8 : 14), w: paperW, h: paperH, r: 2, rot: 0 };
+  const paperBack1 = {
+    x: paperFront.x + (compact ? 10 : 18),
+    y: paperFront.y - (compact ? 10 : 6),
+    w: paperFront.w - (compact ? 18 : 24),
+    h: Math.max(60, paperFront.h - (compact ? 18 : 56)),
+    r: 2,
+    rot: compact ? -1.4 : -2.2
+  };
+  const paperBack2 = {
+    x: paperFront.x + (compact ? 4 : 6),
+    y: paperFront.y + (compact ? 10 : 16),
+    w: paperFront.w - (compact ? 8 : 8),
+    h: Math.max(70, paperFront.h - (compact ? 10 : 36)),
+    r: 2,
+    rot: compact ? 0.9 : 1.4
+  };
 
   const defs = `
     <filter id="paperShadow" x="-20%" y="-20%" width="140%" height="140%">
@@ -110,7 +132,7 @@ export function renderUserCard(input: {
       paperBack1.h,
       paperBack1.r,
       paperBack1.rot,
-      backText(paperBack1.x, paperBack1.y, paperBack1.w, "excerpt · devstats", [faintLine3, faintLine1, faintLine2])
+      compact ? "" : backText(paperBack1.x, paperBack1.y, paperBack1.w, "excerpt · devstats", [faintLine3, faintLine1, faintLine2])
     )
   );
   body.push(
@@ -121,15 +143,15 @@ export function renderUserCard(input: {
       paperBack2.h,
       paperBack2.r,
       paperBack2.rot,
-      backText(paperBack2.x, paperBack2.y, paperBack2.w, `note · @${input.user.login}`, [faintLine1, faintLine2, faintLine3])
+      compact ? "" : backText(paperBack2.x, paperBack2.y, paperBack2.w, `note · @${input.user.login}`, [faintLine1, faintLine2, faintLine3])
     )
   );
   body.push(paperGroup(paperFront.x, paperFront.y, paperFront.w, paperFront.h, paperFront.r, paperFront.rot));
 
   // Content on the front paper (no rotation so it's readable)
-  const innerX = paperFront.x + 22;
-  const innerY = paperFront.y + 26;
-  const innerW = paperFront.w - 44;
+  const innerX = paperFront.x + (compact ? 16 : 22);
+  const innerY = paperFront.y + (compact ? 20 : 26);
+  const innerW = paperFront.w - (compact ? 32 : 44);
 
   body.push(
     `<text x="${innerX}" y="${innerY}" class="paperMono" fill="${escapeXml(paperMuted)}" font-size="12" font-weight="500">${escapeXml(
@@ -141,35 +163,26 @@ export function renderUserCard(input: {
   const clampText = (s: string) => (s.length > maxChars ? `${s.slice(0, Math.max(0, maxChars - 1))}…` : s);
 
   // Profile music right under the GitHub id line
-  const musicBlockTopY = innerY + 18;
-  const musicBlockH = input.nowPlaying ? 44 : 0;
+  const musicBlockTopY = innerY + (compact ? 16 : 18);
+  const musicBlockH = input.nowPlaying ? (compact ? 26 : 30) : 0;
   if (input.nowPlaying) {
     const np = input.nowPlaying;
     const textX = innerX;
-    const label = "profile music";
-    const labelFontSize = 12;
-    const labelWeight = 600;
-
     body.push(
-      `<text x="${textX}" y="${musicBlockTopY}" class="paperMono" fill="${escapeXml(paperMuted)}" font-size="${labelFontSize}" font-weight="${labelWeight}">${escapeXml(
-        label
-      )}</text>`
-    );
-    body.push(
-      `<text x="${textX}" y="${musicBlockTopY + 18}" class="paperText" fill="${escapeXml(paperText)}" font-size="14" font-weight="650">${escapeXml(
+      `<text x="${textX}" y="${musicBlockTopY}" class="paperText" fill="${escapeXml(paperText)}" font-size="14" font-weight="650">${escapeXml(
         clampText(np.track)
       )}</text>`
     );
     body.push(
-      `<text x="${textX}" y="${musicBlockTopY + 34}" class="paperText" fill="${escapeXml(paperMuted)}" font-size="12" font-weight="600">${escapeXml(
-        clampText(np.artists)
-      )}</text>`
+      `<text x="${textX}" y="${musicBlockTopY + (compact ? 14 : 16)}" class="paperText" fill="${escapeXml(
+        paperMuted
+      )}" font-size="${compact ? 11 : 12}" font-weight="600">${escapeXml(clampText(np.artists))}</text>`
     );
   }
 
   // Dense paragraph-like blocks to mimic printed excerpts
-  const lineY0 = innerY + 26 + musicBlockH + 10;
-  const lineGap = 16;
+  const lineY0 = innerY + 24 + musicBlockH + (compact ? 8 : 10);
+  const lineGap = compact ? 14 : 16;
   const line1 = `${rows[0]!.label} ${rows[0]!.value} · ${rows[1]!.label} ${rows[1]!.value}`;
   const line2 = `${rows[2]!.label} ${rows[2]!.value} · ${rows[3]!.label} ${rows[3]!.value}`;
   body.push(
@@ -187,17 +200,12 @@ export function renderUserCard(input: {
   const totalBytes = input.langs.totalBytes;
   const top = totalBytes > 0 ? input.langs.top : [];
 
-  const barLabelY = paperFront.y + paperFront.h - 54;
-  body.push(
-    `<text x="${innerX}" y="${barLabelY}" class="paperMono" fill="${escapeXml(paperMuted)}" font-size="12" font-weight="500">${escapeXml(
-      "language breakdown"
-    )}</text>`
-  );
-
+  // Flow layout: place right after stats (remove the big blank gap).
+  const barLabelY = lineY0 + lineGap + (compact ? 18 : 22);
   const barX = innerX;
-  const barY = barLabelY + 12;
+  const barY = barLabelY;
   const barW = innerW;
-  const barH = 5;
+  const barH = compact ? 4 : 5;
   body.push(roundedRect(barX, barY, barW, barH, 2, { fill: "rgba(15, 23, 42, 0.10)" }));
 
   // monochrome-ish segments on paper
@@ -207,8 +215,12 @@ export function renderUserCard(input: {
     const pct = (l.bytes / totalBytes) * 100;
     const w = (pct / 100) * barW;
     if (w <= 0) continue;
-    const opacity = Math.max(0.20, 0.85 - i * 0.16);
-    body.push(`<rect x="${cursor}" y="${barY}" width="${w}" height="${barH}" fill="rgba(15, 23, 42, 0.85)" opacity="${opacity.toFixed(2)}" />`);
+    const rawColor = (l as unknown as { color?: unknown }).color;
+    const fill = isHexColor(rawColor) ? rawColor : "rgba(15, 23, 42, 0.85)";
+    const opacity = isHexColor(rawColor) ? 0.92 : Math.max(0.20, 0.85 - i * 0.16);
+    body.push(
+      `<rect x="${cursor}" y="${barY}" width="${w}" height="${barH}" fill="${escapeXml(fill)}" opacity="${opacity.toFixed(2)}" />`
+    );
     cursor += w;
   }
 
@@ -224,12 +236,15 @@ export function renderUserCard(input: {
       })
       .join(" · ");
 
-    const legendY = barY + barH + 16;
-    body.push(
-      `<text x="${innerX}" y="${legendY}" class="paperMono" fill="${escapeXml(paperMuted)}" font-size="11" font-weight="500">${escapeXml(
-        legend
-      )}</text>`
-    );
+    const legendY = barY + barH + (compact ? 10 : 16);
+    const paperBottom = paperFront.y + paperFront.h - (compact ? 6 : 14);
+    if (legendY <= paperBottom) {
+      body.push(
+        `<text x="${innerX}" y="${legendY}" class="paperMono" fill="${escapeXml(paperMuted)}" font-size="${
+          compact ? 9 : 11
+        }" font-weight="500">${escapeXml(legend)}</text>`
+      );
+    }
   }
 
   return svgDoc(

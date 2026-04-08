@@ -21,10 +21,10 @@
   "langs": {
     "totalBytes": 100000,
     "top": [
-      { "name": "TypeScript", "bytes": 52000 },
-      { "name": "Go", "bytes": 24000 },
-      { "name": "Python", "bytes": 14000 },
-      { "name": "Rust", "bytes": 10000 }
+      { "name": "TypeScript", "bytes": 52000, "color": "#3178c6" },
+      { "name": "Go", "bytes": 24000, "color": "#00ADD8" },
+      { "name": "Python", "bytes": 14000, "color": "#3572A5" },
+      { "name": "Rust", "bytes": 10000, "color": "#dea584" }
     ]
   }
 }

@@ -1,0 +1,4 @@
+{
+  "devCommand": "node -e \"process.stdout.write('')\""
+}
+

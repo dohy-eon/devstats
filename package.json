@@ -5,11 +5,12 @@
   "description": "Custom GitHub stats cards powered by Vercel SVG API",
   "license": "MIT",
   "type": "commonjs",
+  "packageManager": "npm@10.9.2",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "dev": "vercel dev",
+    "dev": "node -e \"console.log('Run Vercel Dev: npx vc@latest dev -A vercel.local.json --listen 3000')\"",
     "build": "tsc -p tsconfig.json --noEmit",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },

@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { fetchUser } from "../src/fetchers/github/user";
-import { fetchRepos, summarizeRepos } from "../src/fetchers/github/repos";
+import { fetchActivityStats } from "../src/fetchers/github/activity";
+import { fetchTopLanguages } from "../src/fetchers/github/languages";
 import { renderFallbackCard, renderUserCard } from "../src/renderers/card";
-import type { CardMetricKey } from "../src/renderers/card";
 import { resolveTheme } from "../src/themes";
 import { normalizeHexColor } from "../src/utils/svg";
 
@@ -10,25 +10,15 @@ function getString(q: unknown): string | undefined {
   return typeof q === "string" && q.trim() ? q : undefined;
 }
 
-function parseHideSet(hide: string | undefined): ReadonlySet<CardMetricKey> {
-  const out = new Set<CardMetricKey>();
-  if (!hide) return out;
-  const parts = hide
-    .split(",")
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean);
-  for (const p of parts) {
-    if (p === "stars") out.add("stars");
-    else if (p === "forks") out.add("forks");
-    else if (p === "followers") out.add("followers");
-    else if (p === "contribs" || p === "contributions") out.add("contribs");
-  }
-  return out;
-}
-
 function setSvgHeaders(res: VercelResponse): void {
   res.setHeader("Content-Type", "image/svg+xml; charset=utf-8");
   res.setHeader("Cache-Control", "public, s-maxage=1800, stale-while-revalidate=86400");
+}
+
+function getInt(q: unknown): number | undefined {
+  if (typeof q !== "string") return undefined;
+  const n = Number.parseInt(q, 10);
+  return Number.isFinite(n) ? n : undefined;
 }
 
 function pickThemeOverrides(req: VercelRequest): {
@@ -76,7 +66,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
 
   const username = getString(req.query.username);
   const theme = resolveTheme(getString(req.query.theme), pickThemeOverrides(req));
-  const hide = parseHideSet(getString(req.query.hide));
+  const current = getInt(req.query.current);
+  const longest = getInt(req.query.longest);
+  const year = getInt(req.query.year);
 
   if (!username) {
     res.status(400).send(renderFallbackCard("Missing `username` query param.", theme));
@@ -84,9 +76,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   }
 
   try {
-    const [user, repos] = await Promise.all([fetchUser(username), fetchRepos(username, 200)]);
-    const stats = summarizeRepos(repos);
-    const svg = renderUserCard({ user, stats, theme, hide });
+    const effectiveYear = year ?? new Date().getUTCFullYear();
+    const [user, activity, langs] = await Promise.all([
+      fetchUser(username),
+      fetchActivityStats(username, effectiveYear),
+      fetchTopLanguages(username, { maxRepos: 200, topN: 5 })
+    ]);
+
+    const svg = renderUserCard({
+      user,
+      activity,
+      langs,
+      year: effectiveYear,
+      streak: { current: current ?? 0, longest: longest ?? 0 },
+      theme
+    });
     res.status(200).send(svg);
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown error";

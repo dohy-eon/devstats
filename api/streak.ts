@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { renderFallbackStreak, renderStreakCard } from "../src/renderers/streak";
+import { fetchStreak } from "../src/fetchers/github/streak";
 import { getTheme } from "../src/themes";
 
 function getString(q: unknown): string | undefined {
@@ -29,17 +30,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     res.status(400).send(renderFallbackStreak("Missing `username` query param.", theme));
     return;
   }
-  if (current === undefined || longest === undefined) {
-    res.status(400).send(renderFallbackStreak("Missing `current` or `longest` query param.", theme));
-    return;
-  }
-  if (current < 0 || longest < 0) {
-    res.status(400).send(renderFallbackStreak("`current` and `longest` must be >= 0.", theme));
-    return;
-  }
 
   try {
-    res.status(200).send(renderStreakCard({ username, current, longest, theme }));
+    const streak =
+      current !== undefined && longest !== undefined
+        ? { current, longest }
+        : await fetchStreak(username).then((s) => ({
+            current: current ?? s.current,
+            longest: longest ?? s.longest
+          }));
+
+    if (streak.current < 0 || streak.longest < 0) {
+      res.status(400).send(renderFallbackStreak("`current` and `longest` must be >= 0.", theme));
+      return;
+    }
+
+    res.status(200).send(renderStreakCard({ username, current: streak.current, longest: streak.longest, theme }));
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown error";
     res.status(200).send(renderFallbackStreak(msg, theme));

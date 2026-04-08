@@ -1,6 +1,6 @@
 import type { SvgTheme } from "../utils/svg";
 
-export type ThemeName = "default" | "dark" | "nord" | "dracula";
+export type ThemeName = "default" | "dark" | "nord" | "dracula" | "xai";
 export type ThemeOverrides = Partial<Pick<SvgTheme, "bg" | "border" | "title" | "text" | "muted" | "accent" | "shadow">>;
 
 const THEMES: Record<ThemeName, SvgTheme> = {
@@ -39,6 +39,14 @@ const THEMES: Record<ThemeName, SvgTheme> = {
     muted: "#bd93f9",
     accent: "#50fa7b",
     shadow: "#000000"
+  },
+  xai: {
+    bg: "#1f2228",
+    border: "rgba(255, 255, 255, 0.1)",
+    title: "#ffffff",
+    text: "#ffffff",
+    muted: "rgba(255, 255, 255, 0.7)",
+    accent: "#ffffff"
   }
 };
 

@@ -46,6 +46,89 @@ export function clamp(n: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, n));
 }
 
+export type UiTextTone = "primary" | "secondary" | "muted" | "faint";
+
+export type UiTokens = {
+  bg: string; // page/canvas
+  surface: string; // card surface
+  surfaceHover?: string;
+  border: string; // default border
+  borderStrong: string;
+  text: string;
+  textSecondary: string;
+  textMuted: string;
+  textFaint: string;
+};
+
+export function xaiTokens(): UiTokens {
+  return {
+    bg: "#1f2228",
+    surface: "rgba(255, 255, 255, 0.03)",
+    surfaceHover: "rgba(255, 255, 255, 0.08)",
+    border: "rgba(255, 255, 255, 0.10)",
+    borderStrong: "rgba(255, 255, 255, 0.20)",
+    text: "#ffffff",
+    textSecondary: "rgba(255, 255, 255, 0.70)",
+    textMuted: "rgba(255, 255, 255, 0.50)",
+    textFaint: "rgba(255, 255, 255, 0.30)"
+  };
+}
+
+export function uiFonts(): { mono: string; sans: string } {
+  return {
+    mono:
+      'GeistMono, ui-monospace, SFMono-Regular, Roboto Mono, Menlo, Monaco, "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace',
+    sans: 'universalSans, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+  };
+}
+
+export function uiStyle(): string {
+  const { mono, sans } = uiFonts();
+  return `
+    .mono { font-family: ${mono}; }
+    .sans { font-family: ${sans}; }
+    .cap { letter-spacing: 1.4px; text-transform: uppercase; }
+  `;
+}
+
+export function uiDivider(x1: number, y: number, x2: number, stroke: string): string {
+  return `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${escapeXml(stroke)}" />`;
+}
+
+export function uiBadge(
+  x: number,
+  y: number,
+  text: string,
+  tokens: UiTokens,
+  options: { paddingX?: number; paddingY?: number; radius?: number } = {}
+): string {
+  const px = options.paddingX ?? 8;
+  const py = options.paddingY ?? 5;
+  const r = options.radius ?? 0;
+  // crude width estimate: monospace ~0.62em per char at 12px
+  const w = Math.ceil(px * 2 + text.length * 12 * 0.62);
+  const h = py * 2 + 12 + 2;
+  return [
+    roundedRect(x, y, w, h, r, { fill: "transparent", stroke: tokens.borderStrong, strokeWidth: 1 }),
+    `<text x="${x + w / 2}" y="${y + h / 2 + 1}" class="mono cap" fill="${escapeXml(
+      tokens.text
+    )}" font-size="12" font-weight="400" text-anchor="middle" dominant-baseline="middle">${escapeXml(text)}</text>`
+  ].join("");
+}
+
+export function uiCard(
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  tokens: UiTokens,
+  options: { radius?: number; strokeStrong?: boolean } = {}
+): string {
+  const r = options.radius ?? 0;
+  const stroke = options.strokeStrong ? tokens.borderStrong : tokens.border;
+  return roundedRect(x, y, w, h, r, { fill: tokens.surface, stroke, strokeWidth: 1 });
+}
+
 export function attrs(input: Record<string, string | number | boolean | undefined>): string {
   const parts: string[] = [];
   for (const [k, v] of Object.entries(input)) {
@@ -140,21 +223,13 @@ export function svgDoc(
     })}>`,
     extra.defs ? `<defs>${extra.defs}</defs>` : "",
     extra.style ? `<style>${extra.style}</style>` : "",
-    options.theme.shadow
-      ? `<filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="${escapeXml(
-            options.theme.shadow
-          )}" flood-opacity="0.18"/>
-        </filter>`
-      : "",
-    `<g ${attrs({ filter: options.theme.shadow ? "url(#shadow)" : undefined })}>`,
+    `<g>`,
     roundedRect(0, 0, options.width, options.height, r, {
       fill: options.theme.bg,
       stroke: options.theme.border,
       strokeWidth: 1
     }),
-    `</g>`,
-    `<g>`
+    `</g><g>`
   ].join("");
 
   const titleBlock =

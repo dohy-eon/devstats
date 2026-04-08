@@ -1,5 +1,8 @@
 # devstats
-Custom GitHub stats cards powered by Vercel SVG API.
+
+[English README](./README.en.md)
+
+Vercel Serverless + GitHub API로 **SVG 기반 GitHub stats 카드**를 생성합니다.
 
 ## 기능
 - **Vercel Serverless API**로 SVG 카드 생성
@@ -10,27 +13,31 @@ Custom GitHub stats cards powered by Vercel SVG API.
 ## API
 - **`/api/card?username=xxx`**
 - **`/api/langs?username=xxx`**
-- **`/api/streak?username=xxx&current=xx&longest=xx`**
+- **`/api/streak?username=xxx`**
 
 추가 옵션:
-- `theme`: `default | dark | nord | dracula`
+- `theme`: `default | dark | nord | dracula | xai`
 - `bg_color`, `text_color`, `title_color`, `icon_color`, `border_color`: `fff` 또는 `17171B` 같은 hex (선택)
-- `hide`: `stars,forks,followers,contribs` 중 콤마로 숨김 (선택)
+- (참고) 일부 파라미터는 엔드포인트/카드 디자인 변경에 따라 지원 범위가 달라질 수 있습니다.
 
 예시:
 
 ```bash
 curl "http://localhost:3000/api/card?username=octocat"
 curl "http://localhost:3000/api/langs?username=octocat"
-curl "http://localhost:3000/api/streak?username=octocat&current=12&longest=34"
+curl "http://localhost:3000/api/streak?username=octocat"
 ```
 
 ## README에 이미지로 임베드
-배포 후(예: `https://YOUR_APP.vercel.app`) 아래처럼 **링크 한 줄**로 카드가 뜹니다.
+프로덕션 배포 주소: `https://devstats-taupe.vercel.app`
+
+아래처럼 **링크 한 줄**로 카드가 뜹니다.
 
 ```md
-![Dohyeon's GitHub stats](https://YOUR_APP.vercel.app/api/card?username=dohy-eon&hide=stars&bg_color=fff&text_color=17171B&title_color=17171B&icon_color=17171B)
+![Dohyeon's GitHub stats](https://devstats-taupe.vercel.app/api/card?username=dohy-eon&bg_color=1f2228&text_color=ffffff&title_color=ffffff&v=1)
 ```
+
+참고: GitHub README 이미지 캐시 때문에 변경이 바로 반영되지 않으면 `v=1` 값을 `v=2`처럼 바꿔서 캐시를 깨면 됩니다.
 
 ## 환경변수
 - **`GITHUB_TOKEN`**: GitHub GraphQL 호출에 필요합니다.

@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { fetchUser } from "../src/fetchers/github/user";
 import { fetchActivityStats } from "../src/fetchers/github/activity";
 import { fetchTopLanguages } from "../src/fetchers/github/languages";
+import { fetchStreak } from "../src/fetchers/github/streak";
 import { renderFallbackCard, renderUserCard } from "../src/renderers/card";
 import { resolveTheme } from "../src/themes";
 import { normalizeHexColor } from "../src/utils/svg";
@@ -65,7 +66,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   setSvgHeaders(res);
 
   const username = getString(req.query.username);
-  const theme = resolveTheme(getString(req.query.theme), pickThemeOverrides(req));
+  const theme = resolveTheme(getString(req.query.theme) ?? "xai", pickThemeOverrides(req));
   const current = getInt(req.query.current);
   const longest = getInt(req.query.longest);
   const year = getInt(req.query.year);
@@ -77,10 +78,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
 
   try {
     const effectiveYear = year ?? new Date().getUTCFullYear();
-    const [user, activity, langs] = await Promise.all([
+    const streakPromise =
+      current !== undefined && longest !== undefined
+        ? Promise.resolve({ current, longest })
+        : fetchStreak(username)
+            .then((s) => ({
+              current: current ?? s.current,
+              longest: longest ?? s.longest
+            }))
+            .catch(() => ({
+              current: current ?? 0,
+              longest: longest ?? 0
+            }));
+
+    const [user, activity, langs, streak] = await Promise.all([
       fetchUser(username),
       fetchActivityStats(username, effectiveYear),
-      fetchTopLanguages(username, { maxRepos: 200, topN: 5 })
+      fetchTopLanguages(username, { maxRepos: 200, topN: 5 }),
+      streakPromise
     ]);
 
     const svg = renderUserCard({
@@ -88,7 +103,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       activity,
       langs,
       year: effectiveYear,
-      streak: { current: current ?? 0, longest: longest ?? 0 },
+      streak,
       theme
     });
     res.status(200).send(svg);

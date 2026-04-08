@@ -22,6 +22,10 @@ function getInt(q: unknown): number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
+function clampInt(n: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, n));
+}
+
 function pickThemeOverrides(req: VercelRequest): {
   bg?: string;
   title?: string;
@@ -70,9 +74,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   const current = getInt(req.query.current);
   const longest = getInt(req.query.longest);
   const year = getInt(req.query.year);
+  const width = getInt(req.query.width);
+  const height = getInt(req.query.height);
+  const size: { width?: number; height?: number } = {};
+  if (width !== undefined) size.width = clampInt(width, 320, 1200);
+  if (height !== undefined) size.height = clampInt(height, 180, 1200);
 
   if (!username) {
-    res.status(400).send(renderFallbackCard("Missing `username` query param.", theme));
+    res.status(400).send(renderFallbackCard("Missing `username` query param.", theme, size));
     return;
   }
 
@@ -104,12 +113,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       langs,
       year: effectiveYear,
       streak,
-      theme
+      theme,
+      ...(width !== undefined ? { width: clampInt(width, 320, 1200) } : {}),
+      ...(height !== undefined ? { height: clampInt(height, 180, 1200) } : {})
     });
     res.status(200).send(svg);
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Unknown error";
-    res.status(200).send(renderFallbackCard(msg, theme));
+    res.status(200).send(renderFallbackCard(msg, theme, size));
   }
 }
 

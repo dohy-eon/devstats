@@ -8,33 +8,43 @@ export type CardStats = {
   repoCount: number;
 };
 
+export type CardMetricKey = "contribs" | "stars" | "forks" | "followers";
+
 export function renderUserCard(input: {
   user: GitHubUser;
   stats: CardStats;
   theme: SvgTheme;
+  hide?: ReadonlySet<CardMetricKey>;
 }): string {
   const width = 460;
-  const height = 170;
   const { user, stats, theme } = input;
+  const hide = input.hide ?? new Set<CardMetricKey>();
   const displayName = user.name?.trim() ? user.name : user.login;
 
   const max = Math.max(stats.totalStars, stats.totalForks, user.followers, 1);
 
-  const rows = [
-    {
+  const rows: { key: CardMetricKey; label: string; value: number; ratio: number }[] = [];
+  if (!hide.has("contribs")) {
+    rows.push({
+      key: "contribs",
       label: "Contributions (1y)",
       value: user.contributionsLastYear,
       ratio: user.contributionsLastYear / Math.max(user.contributionsLastYear, 1)
-    },
-    { label: "Stars", value: stats.totalStars, ratio: stats.totalStars / max },
-    { label: "Forks", value: stats.totalForks, ratio: stats.totalForks / max },
-    { label: "Followers", value: user.followers, ratio: user.followers / max }
-  ];
+    });
+  }
+  if (!hide.has("stars")) rows.push({ key: "stars", label: "Stars", value: stats.totalStars, ratio: stats.totalStars / max });
+  if (!hide.has("forks")) rows.push({ key: "forks", label: "Forks", value: stats.totalForks, ratio: stats.totalForks / max });
+  if (!hide.has("followers"))
+    rows.push({ key: "followers", label: "Followers", value: user.followers, ratio: user.followers / max });
 
   const startY = 64;
   const rowH = 24;
   const barX = 210;
   const barW = 220;
+
+  const minHeight = 120;
+  const contentHeight = startY + rows.length * rowH + 10;
+  const height = Math.max(minHeight, contentHeight);
 
   const body: string[] = [];
   body.push(

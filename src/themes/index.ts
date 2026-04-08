@@ -1,6 +1,7 @@
 import type { SvgTheme } from "../utils/svg";
 
 export type ThemeName = "default" | "dark" | "nord" | "dracula";
+export type ThemeOverrides = Partial<Pick<SvgTheme, "bg" | "border" | "title" | "text" | "muted" | "accent" | "shadow">>;
 
 const THEMES: Record<ThemeName, SvgTheme> = {
   default: {
@@ -44,5 +45,9 @@ const THEMES: Record<ThemeName, SvgTheme> = {
 export function getTheme(name: string | undefined): SvgTheme {
   const key = (name ?? "default") as ThemeName;
   return THEMES[key] ?? THEMES.default;
+}
+
+export function resolveTheme(name: string | undefined, overrides: ThemeOverrides = {}): SvgTheme {
+  return { ...getTheme(name), ...overrides };
 }
 

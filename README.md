@@ -14,6 +14,8 @@ Custom GitHub stats cards powered by Vercel SVG API.
 
 추가 옵션:
 - `theme`: `default | dark | nord | dracula`
+- `bg_color`, `text_color`, `title_color`, `icon_color`, `border_color`: `fff` 또는 `17171B` 같은 hex (선택)
+- `hide`: `stars,forks,followers,contribs` 중 콤마로 숨김 (선택)
 
 예시:
 
@@ -21,6 +23,13 @@ Custom GitHub stats cards powered by Vercel SVG API.
 curl "http://localhost:3000/api/card?username=octocat"
 curl "http://localhost:3000/api/langs?username=octocat"
 curl "http://localhost:3000/api/streak?username=octocat&current=12&longest=34"
+```
+
+## README에 이미지로 임베드
+배포 후(예: `https://YOUR_APP.vercel.app`) 아래처럼 **링크 한 줄**로 카드가 뜹니다.
+
+```md
+![Dohyeon's GitHub stats](https://YOUR_APP.vercel.app/api/card?username=dohy-eon&hide=stars&bg_color=fff&text_color=17171B&title_color=17171B&icon_color=17171B)
 ```
 
 ## 환경변수

@@ -26,6 +26,22 @@ export function escapeXml(value: string): string {
     .replaceAll("'", "&apos;");
 }
 
+export function normalizeHexColor(input: string | undefined): string | undefined {
+  if (!input) return undefined;
+  const raw = input.trim().replace(/^#/, "");
+  if (!raw) return undefined;
+  if (/^[0-9a-fA-F]{3}$/.test(raw)) {
+    const r = raw[0]!;
+    const g = raw[1]!;
+    const b = raw[2]!;
+    return `#${r}${r}${g}${g}${b}${b}`.toLowerCase();
+  }
+  if (/^[0-9a-fA-F]{6}$/.test(raw)) {
+    return `#${raw}`.toLowerCase();
+  }
+  return undefined;
+}
+
 export function clamp(n: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, n));
 }

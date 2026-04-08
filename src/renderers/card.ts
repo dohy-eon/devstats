@@ -183,15 +183,16 @@ export function renderUserCard(input: {
   // Dense paragraph-like blocks to mimic printed excerpts
   const lineY0 = innerY + 24 + musicBlockH + (compact ? 8 : 10);
   const lineGap = compact ? 14 : 16;
+  const statsFontSize = compact ? 12 : 13;
   const line1 = `${rows[0]!.label} ${rows[0]!.value} · ${rows[1]!.label} ${rows[1]!.value}`;
   const line2 = `${rows[2]!.label} ${rows[2]!.value} · ${rows[3]!.label} ${rows[3]!.value}`;
   body.push(
-    `<text x="${innerX}" y="${lineY0}" class="paperText" fill="${escapeXml(paperText)}" font-size="14" font-weight="600">${escapeXml(
+    `<text x="${innerX}" y="${lineY0}" class="paperText" fill="${escapeXml(paperText)}" font-size="${statsFontSize}" font-weight="600">${escapeXml(
       line1
     )}</text>`
   );
   body.push(
-    `<text x="${innerX}" y="${lineY0 + lineGap}" class="paperText" fill="${escapeXml(paperText)}" font-size="14" font-weight="600">${escapeXml(
+    `<text x="${innerX}" y="${lineY0 + lineGap}" class="paperText" fill="${escapeXml(paperText)}" font-size="${statsFontSize}" font-weight="600">${escapeXml(
       line2
     )}</text>`
   );

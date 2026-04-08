@@ -29,8 +29,8 @@ const mock = JSON.parse(raw) as Mock;
 const svg = renderCard({
   user: { login: mock.user.login } as any,
   activity: {
-    totalCommitsLastYear: mock.activity.totalCommitsLastYear,
-    totalPrsLastYear: mock.activity.totalPrsLastYear
+    totalCommits: mock.activity.totalCommitsLastYear,
+    totalPrs: mock.activity.totalPrsLastYear
   } as any,
   langs: {
     totalBytes: mock.langs.totalBytes,
@@ -38,7 +38,7 @@ const svg = renderCard({
   },
   streak: { current: mock.streak.current, longest: mock.streak.longest },
   nowPlaying: mock.nowPlaying,
-  year: mock.year,
+  year: `${mock.year}`,
   theme: resolveTheme(mock.theme)
 });
 

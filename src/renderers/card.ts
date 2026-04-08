@@ -15,7 +15,7 @@ export function renderUserCard(input: {
   langs: { totalBytes: number; top: LanguageStat[] };
   streak: { current: number; longest: number };
   nowPlaying?: SpotifyNowPlaying;
-  year: number;
+  year: number | string;
   theme: SvgTheme;
   width?: number;
   height?: number;
@@ -26,8 +26,8 @@ export function renderUserCard(input: {
   const pad = 24;
 
   const rows: Array<{ label: string; value: string }> = [
-    { label: "commits", value: input.activity.totalCommitsLastYear.toLocaleString("en-US") },
-    { label: "pull requests", value: input.activity.totalPrsLastYear.toLocaleString("en-US") },
+    { label: "commits", value: input.activity.totalCommits.toLocaleString("en-US") },
+    { label: "pull requests", value: input.activity.totalPrs.toLocaleString("en-US") },
     { label: "current streak", value: `${input.streak.current}` },
     { label: "longest streak", value: `${input.streak.longest}` }
   ];

@@ -1,8 +1,8 @@
 import { githubGraphql } from "./client";
 
 export type GitHubActivityStats = {
-  totalCommitsLastYear: number;
-  totalPrsLastYear: number;
+  totalCommits: number;
+  totalPrs: number;
   mergedPrsAllTime: number;
 };
 
@@ -38,16 +38,22 @@ function yearRangeUTC(year: number): { from: string; to: string } {
   return { from, to };
 }
 
-export async function fetchActivityStats(login: string, year: number = new Date().getUTCFullYear()): Promise<GitHubActivityStats> {
-  const { from, to } = yearRangeUTC(year);
+function rolling365RangeUTC(now: Date = new Date()): { from: string; to: string } {
+  const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0));
+  const from = new Date(to.getTime() - 365 * 24 * 60 * 60 * 1000);
+  return { from: from.toISOString(), to: new Date(to.getTime() + 24 * 60 * 60 * 1000).toISOString() };
+}
+
+export async function fetchActivityStats(login: string, options: { year?: number } = {}): Promise<GitHubActivityStats> {
+  const { from, to } = options.year ? yearRangeUTC(options.year) : rolling365RangeUTC();
   const mergedQuery = `is:pr author:${login} is:merged`;
 
   const data = await githubGraphql<ActivityQueryData>(ACTIVITY_QUERY, { login, from, to, mergedQuery });
   if (!data.user) throw new Error("User not found");
 
   return {
-    totalCommitsLastYear: data.user.contributionsCollection.totalCommitContributions,
-    totalPrsLastYear: data.user.contributionsCollection.totalPullRequestContributions,
+    totalCommits: data.user.contributionsCollection.totalCommitContributions,
+    totalPrs: data.user.contributionsCollection.totalPullRequestContributions,
     mergedPrsAllTime: data.mergedPrs.issueCount
   };
 }

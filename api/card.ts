@@ -89,6 +89,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
 
   try {
     const effectiveYear = year ?? new Date().getUTCFullYear();
+    const periodLabel = year ? `${effectiveYear}` : "last 365d";
     const streakPromise =
       current !== undefined && longest !== undefined
         ? Promise.resolve({ current, longest })
@@ -102,21 +103,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
               longest: longest ?? 0
             }));
 
-    const spotifyPromise = track ? fetchSpotifyTrackAsProfileMusic(track).catch(() => null) : Promise.resolve(null);
+    const spotifyPromise = track ? fetchSpotifyTrackAsProfileMusic(track) : Promise.resolve(null);
 
-    const [user, activity, langs, streak, nowPlaying] = await Promise.all([
+    const [user, activity, langs, streak, nowPlayingResult] = await Promise.all([
       fetchUser(username),
-      fetchActivityStats(username, effectiveYear),
+      fetchActivityStats(username, year ? { year: effectiveYear } : {}),
       fetchTopLanguages(username, { maxRepos: 200, topN: 5 }),
       streakPromise,
-      spotifyPromise
+      spotifyPromise.catch((err) => err as unknown)
     ]);
+
+    const nowPlaying =
+      nowPlayingResult && typeof nowPlayingResult === "object" && "track" in nowPlayingResult
+        ? (nowPlayingResult as any)
+        : track
+          ? {
+              status: "profile",
+              track: "spotify track fetch failed",
+              artists:
+                nowPlayingResult instanceof Error
+                  ? nowPlayingResult.message
+                  : "Check SPOTIFY_CLIENT_ID / SPOTIFY_CLIENT_SECRET and track= param."
+            }
+          : null;
 
     const svg = renderUserCard({
       user,
       activity,
       langs,
-      year: effectiveYear,
+      year: periodLabel,
       streak,
       ...(nowPlaying ? { nowPlaying } : {}),
       theme,

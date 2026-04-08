@@ -28,6 +28,13 @@ curl "http://localhost:3000/api/langs?username=octocat"
 curl "http://localhost:3000/api/streak?username=octocat"
 ```
 
+Spotify 프로필 뮤직(유저별 지정):
+- `track=`(또는 `song=`)에 Spotify Track URL / URI / ID를 넣으면 해당 곡을 카드에 표시합니다.
+
+```bash
+curl "http://localhost:3000/api/card?username=octocat&track=https://open.spotify.com/track/<TRACK_ID>"
+```
+
 ## README에 이미지로 임베드
 프로덕션 배포 주소: `https://devstats-taupe.vercel.app`
 
@@ -41,15 +48,23 @@ curl "http://localhost:3000/api/streak?username=octocat"
 
 ## 환경변수
 - **`GITHUB_TOKEN`**: GitHub GraphQL 호출에 필요합니다.
+- (선택) **Spotify 프로필 뮤직(`track=`/`song=`)** 을 카드에 표시하려면 아래 2개가 필요합니다.
+  - **`SPOTIFY_CLIENT_ID`**
+  - **`SPOTIFY_CLIENT_SECRET`**
 
 로컬에서:
 
 ```bash
 export GITHUB_TOKEN="YOUR_TOKEN"
+export SPOTIFY_CLIENT_ID="YOUR_ID"
+export SPOTIFY_CLIENT_SECRET="YOUR_SECRET"
 ```
 
 Vercel에 배포 시:
 - Project Settings → Environment Variables에 `GITHUB_TOKEN` 추가
+- Spotify를 쓰는 경우 위 3개도 함께 추가
+
+Spotify 섹션은 `track=`(또는 `song=`)을 줄 때만 표시됩니다.
 
 ## 로컬 실행
 
@@ -57,6 +72,15 @@ Vercel에 배포 시:
 npm install
 npx vercel dev --listen 3000 --yes
 ```
+
+## 로컬 SVG 프리뷰(배포 없이 디자인)
+
+```bash
+npm run dev:preview
+```
+
+- `mock.json` 저장 시 `preview.svg` 자동 업데이트
+- `preview.html`을 브라우저로 열어 확인
 
 ## 개발 구조
 - **fetchers**: `src/fetchers/github/*` (GitHub GraphQL fetching)

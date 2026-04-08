@@ -3,6 +3,7 @@ import { fetchUser } from "../src/fetchers/github/user";
 import { fetchActivityStats } from "../src/fetchers/github/activity";
 import { fetchTopLanguages } from "../src/fetchers/github/languages";
 import { fetchStreak } from "../src/fetchers/github/streak";
+import { fetchSpotifyTrackAsProfileMusic } from "../src/fetchers/spotify/track";
 import { renderFallbackCard, renderUserCard } from "../src/renderers/card";
 import { resolveTheme } from "../src/themes";
 import { normalizeHexColor } from "../src/utils/svg";
@@ -70,6 +71,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   setSvgHeaders(res);
 
   const username = getString(req.query.username);
+  const track = getString(req.query.track) ?? getString(req.query.song);
   const theme = resolveTheme(getString(req.query.theme) ?? "xai", pickThemeOverrides(req));
   const current = getInt(req.query.current);
   const longest = getInt(req.query.longest);
@@ -100,11 +102,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
               longest: longest ?? 0
             }));
 
-    const [user, activity, langs, streak] = await Promise.all([
+    const spotifyPromise = track ? fetchSpotifyTrackAsProfileMusic(track).catch(() => null) : Promise.resolve(null);
+
+    const [user, activity, langs, streak, nowPlaying] = await Promise.all([
       fetchUser(username),
       fetchActivityStats(username, effectiveYear),
       fetchTopLanguages(username, { maxRepos: 200, topN: 5 }),
-      streakPromise
+      streakPromise,
+      spotifyPromise
     ]);
 
     const svg = renderUserCard({
@@ -113,6 +118,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       langs,
       year: effectiveYear,
       streak,
+      ...(nowPlaying ? { nowPlaying } : {}),
       theme,
       ...(width !== undefined ? { width: clampInt(width, 320, 1200) } : {}),
       ...(height !== undefined ? { height: clampInt(height, 180, 1200) } : {})

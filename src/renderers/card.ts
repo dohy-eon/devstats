@@ -1,6 +1,7 @@
 import type { GitHubUser } from "../fetchers/github/user";
 import type { GitHubActivityStats } from "../fetchers/github/activity";
 import type { LanguageStat } from "../fetchers/github/languages";
+import type { SpotifyNowPlaying } from "../fetchers/spotify/types";
 import type { SvgTheme } from "../utils/svg";
 import { escapeXml, roundedRect, svgDoc, textEl, uiStyle, xaiTokens } from "../utils/svg";
 
@@ -13,6 +14,7 @@ export function renderUserCard(input: {
   activity: GitHubActivityStats;
   langs: { totalBytes: number; top: LanguageStat[] };
   streak: { current: number; longest: number };
+  nowPlaying?: SpotifyNowPlaying;
   year: number;
   theme: SvgTheme;
   width?: number;
@@ -135,8 +137,38 @@ export function renderUserCard(input: {
     )}</text>`
   );
 
+  const maxChars = Math.max(18, Math.floor(innerW / 7.0));
+  const clampText = (s: string) => (s.length > maxChars ? `${s.slice(0, Math.max(0, maxChars - 1))}…` : s);
+
+  // Profile music right under the GitHub id line
+  const musicBlockTopY = innerY + 18;
+  const musicBlockH = input.nowPlaying ? 44 : 0;
+  if (input.nowPlaying) {
+    const np = input.nowPlaying;
+    const textX = innerX;
+    const label = "profile music";
+    const labelFontSize = 12;
+    const labelWeight = 600;
+
+    body.push(
+      `<text x="${textX}" y="${musicBlockTopY}" class="paperMono" fill="${escapeXml(paperMuted)}" font-size="${labelFontSize}" font-weight="${labelWeight}">${escapeXml(
+        label
+      )}</text>`
+    );
+    body.push(
+      `<text x="${textX}" y="${musicBlockTopY + 18}" class="paperText" fill="${escapeXml(paperText)}" font-size="14" font-weight="650">${escapeXml(
+        clampText(np.track)
+      )}</text>`
+    );
+    body.push(
+      `<text x="${textX}" y="${musicBlockTopY + 34}" class="paperText" fill="${escapeXml(paperMuted)}" font-size="12" font-weight="600">${escapeXml(
+        clampText(np.artists)
+      )}</text>`
+    );
+  }
+
   // Dense paragraph-like blocks to mimic printed excerpts
-  const lineY0 = innerY + 26;
+  const lineY0 = innerY + 26 + musicBlockH + 10;
   const lineGap = 16;
   const line1 = `${rows[0]!.label} ${rows[0]!.value} · ${rows[1]!.label} ${rows[1]!.value}`;
   const line2 = `${rows[2]!.label} ${rows[2]!.value} · ${rows[3]!.label} ${rows[3]!.value}`;

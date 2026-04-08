@@ -10,6 +10,12 @@ type Mock = {
   user: { login: string };
   activity: { totalCommitsLastYear: number; totalPrsLastYear: number };
   langs: { totalBytes: number; top: Array<{ name: string; bytes: number }> };
+  nowPlaying?: {
+    status: "profile";
+    track: string;
+    artists: string;
+    url?: string;
+  };
   streak: { current: number; longest: number };
 };
 
@@ -31,6 +37,7 @@ const svg = renderCard({
     top: mock.langs.top.map((l) => ({ name: l.name, bytes: l.bytes })) as any
   },
   streak: { current: mock.streak.current, longest: mock.streak.longest },
+  nowPlaying: mock.nowPlaying,
   year: mock.year,
   theme: resolveTheme(mock.theme)
 });

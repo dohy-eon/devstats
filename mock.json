@@ -9,6 +9,11 @@
     "totalCommitsLastYear": 279,
     "totalPrsLastYear": 51
   },
+  "nowPlaying": {
+    "status": "profile",
+    "track": "Not just words",
+    "artists": "Ito Rokku"
+  },
   "streak": {
     "current": 12,
     "longest": 37

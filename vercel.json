@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "@vercel/node@3.2.27",
+      "maxDuration": 10
+    }
+  }
+}

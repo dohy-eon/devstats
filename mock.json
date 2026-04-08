@@ -1,0 +1,25 @@
+{
+  "username": "adohy-eon",
+  "year": 2026,
+  "theme": "xai",
+  "user": {
+    "login": "dohy-eon"
+  },
+  "activity": {
+    "totalCommitsLastYear": 279,
+    "totalPrsLastYear": 51
+  },
+  "streak": {
+    "current": 12,
+    "longest": 37
+  },
+  "langs": {
+    "totalBytes": 100000,
+    "top": [
+      { "name": "TypeScript", "bytes": 52000 },
+      { "name": "Go", "bytes": 24000 },
+      { "name": "Python", "bytes": 14000 },
+      { "name": "Rust", "bytes": 10000 }
+    ]
+  }
+}

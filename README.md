@@ -2,88 +2,68 @@
 
 [English README](./README.en.md)
 
-Vercel Serverless + GitHub API로 **SVG 기반 GitHub stats 카드**를 생성합니다.
+> **GitHub 프로필을 xAI 스타일의 미니멀한 SVG 카드로 바꿔 보세요.**  
+> `devstats`는 Vercel Serverless Functions와 GitHub API로 실시간 활동·통계를 SVG로 렌더링하는 오픈소스입니다.
 
-## 기능
-- **Vercel Serverless API**로 SVG 카드 생성
-- **GitHub GraphQL API**로 유저/리포/언어 통계 조회
-- **캐싱 헤더**: `s-maxage`, `stale-while-revalidate`
-- **에러 처리**: 실패 시 fallback SVG 반환
+## 빠른 시작
 
-## API
-- **`/api/card?username=xxx`**
-- **`/api/langs?username=xxx`**
-- **`/api/streak?username=xxx`**
+아래 마크다운을 **그대로 복사**해 본인 GitHub 프로필 `README.md`에 붙여넣으세요.  
+`username=` 뒤에 **GitHub 사용자명**만 바꾸면 됩니다.
 
-추가 옵션:
-- `theme`: `default | dark | nord | dracula | xai`
-- `bg_color`, `text_color`, `title_color`, `icon_color`, `border_color`: `fff` 또는 `17171B` 같은 hex (선택)
-- (참고) 일부 파라미터는 엔드포인트/카드 디자인 변경에 따라 지원 범위가 달라질 수 있습니다.
+### 1. 종합 통계 카드
 
-예시:
-
-```bash
-curl "http://localhost:3000/api/card?username=octocat"
-curl "http://localhost:3000/api/langs?username=octocat"
-curl "http://localhost:3000/api/streak?username=octocat"
-```
-
-Spotify 프로필 뮤직(유저별 지정):
-- `track=`(또는 `song=`)에 Spotify Track URL / URI / ID를 넣으면 해당 곡을 카드에 표시합니다.
-
-```bash
-curl "http://localhost:3000/api/card?username=octocat&track=https://open.spotify.com/track/<TRACK_ID>"
-```
-
-## README에 이미지로 임베드
-프로덕션 배포 주소: `https://devstats-taupe.vercel.app`
-
-아래처럼 **링크 한 줄**로 카드가 뜹니다.
+커밋·PR·이슈·스타 등 활동을 한 장에 표시합니다.
 
 ```md
-![Dohyeon's GitHub stats](https://devstats-taupe.vercel.app/api/card?username=dohy-eon&bg_color=1f2228&text_color=ffffff&title_color=ffffff&v=1)
+[![Stats Card](https://devstats-taupe.vercel.app/api/card?username=YOUR_USERNAME)](https://github.com/dohy-eon/devstats)
 ```
 
-참고: GitHub README 이미지 캐시 때문에 변경이 바로 반영되지 않으면 `v=1` 값을 `v=2`처럼 바꿔서 캐시를 깨면 됩니다.
+### 2. 주요 언어
 
-## 환경변수
-- **`GITHUB_TOKEN`**: GitHub GraphQL 호출에 필요합니다.
-- (선택) **Spotify 프로필 뮤직(`track=`/`song=`)** 을 카드에 표시하려면 아래 2개가 필요합니다.
-  - **`SPOTIFY_CLIENT_ID`**
-  - **`SPOTIFY_CLIENT_SECRET`**
+레포지토리 기준 상위 언어 비중을 보여 줍니다.
 
-로컬에서:
-
-```bash
-export GITHUB_TOKEN="YOUR_TOKEN"
-export SPOTIFY_CLIENT_ID="YOUR_ID"
-export SPOTIFY_CLIENT_SECRET="YOUR_SECRET"
+```md
+[![Top Languages](https://devstats-taupe.vercel.app/api/langs?username=YOUR_USERNAME)](https://github.com/dohy-eon/devstats)
 ```
 
-Vercel에 배포 시:
-- Project Settings → Environment Variables에 `GITHUB_TOKEN` 추가
-- Spotify를 쓰는 경우 위 3개도 함께 추가
+### 3. 커밋 스트릭
 
-Spotify 섹션은 `track=`(또는 `song=`)을 줄 때만 표시됩니다.
+연속 기여 일수와 최장 스트릭을 표시합니다.
 
-## 로컬 실행
-
-```bash
-npm install
-npx vercel dev --listen 3000 --yes
+```md
+[![Commit Streak](https://devstats-taupe.vercel.app/api/streak?username=YOUR_USERNAME)](https://github.com/dohy-eon/devstats)
 ```
 
-## 로컬 SVG 프리뷰(배포 없이 디자인)
+## 커스텀 파라미터
 
-```bash
-npm run dev:preview
-```
+URL 뒤에 `&`로 옵션을 이어 붙일 수 있습니다.
 
-- `mock.json` 저장 시 `preview.svg` 자동 업데이트
-- `preview.html`을 브라우저로 열어 확인
+| 파라미터 | 설명 | 예시 |
+| :--- | :--- | :--- |
+| `theme` | 테마: `xai`, `nord`, `dracula`, `dark`, `default` | `&theme=nord` |
+| `track` / `song` | Spotify 트랙 URL · URI · ID(프로필 뮤직 영역) | `&track=트랙ID또는URL` |
+| `bg_color` | 배경색(hex, `#` 없이) | `&bg_color=1f2228` |
+| `text_color`, `title_color`, `border_color`, `icon_color`, `muted_color` | 글자·테두리·강조색 등 | `&text_color=ffffff` |
+| `year` | 통계 기준 연도(종합 카드) | `&year=2024` |
+| `width` / `height` | 카드 크기(px, 종합 카드만, 서버에서 범위 제한) | `&width=800` |
+| `current` / `longest` | 스트릭 숫자 직접 지정(종합·스트릭 카드) | `&current=5&longest=30` |
+| `v` | GitHub README 이미지 캐시 무력화 | `&v=2` |
 
-## 개발 구조
-- **fetchers**: `src/fetchers/github/*` (GitHub GraphQL fetching)
-- **renderers**: `src/renderers/*` (SVG 렌더링)
-- **themes**: `src/themes/*`
-- **utils**: `src/utils/svg.ts`
+배포 주소: `https://devstats-taupe.vercel.app`
+
+## 특징
+
+- **미니멀 UI**: xAI(Grok) 계열 다크 톤에 맞춘 레이아웃(기본 테마 `xai`).
+- **빠른 응답**: CDN 캐시 헤더(`s-maxage`, `stale-while-revalidate`)로 README 임베드에 적합.
+- **Spotify**: `track=` / `song=`으로 카드에 곡 정보를 넣을 수 있습니다(배포 측 Spotify 설정이 필요할 수 있음).
+- **SVG**: 브라우저·GitHub에서 스케일에 강한 벡터 이미지.
+
+## 기술 스택
+
+- **런타임**: Vercel Serverless Functions (Node.js)
+- **언어**: TypeScript
+- **데이터**: GitHub GraphQL API v4
+
+---
+
+**Powered by [devstats](https://github.com/dohy-eon/devstats)**

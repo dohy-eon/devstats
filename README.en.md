@@ -1,66 +1,69 @@
-## devstats
+# devstats
 
 [한국어 README](./README.md)
 
-Generate **SVG GitHub stats cards** with Vercel Serverless and the GitHub API.
+> **Redefine your GitHub profile with minimalist, xAI-inspired SVG cards.**  
+> `devstats` is an open-source tool that renders real-time GitHub activity and stats as SVG images via Vercel Serverless Functions.
 
-## Features
-- **Vercel Serverless API** endpoints that return SVG (`image/svg+xml`)
-- **GitHub GraphQL API** for user/repo/language stats
-- **Caching headers**: `s-maxage`, `stale-while-revalidate`
-- **Graceful errors**: fallback SVG on failures
+## Quick start
 
-## API
-- **`/api/card?username=xxx`**
-- **`/api/langs?username=xxx`**
-- **`/api/streak?username=xxx`**
+Copy the Markdown below into your profile **`README.md`**.  
+Replace **`YOUR_USERNAME`** with your GitHub login.
 
-Optional:
-- `theme`: `default | dark | nord | dracula | xai`
-- `bg_color`, `text_color`, `title_color`, `icon_color`, `border_color`: hex like `fff` or `17171B`
-- Note: supported params may vary as cards evolve.
+### 1. Overall stats
 
-Examples:
-
-```bash
-curl "http://localhost:3000/api/card?username=octocat"
-curl "http://localhost:3000/api/langs?username=octocat"
-curl "http://localhost:3000/api/streak?username=octocat"
-```
-
-## Embed in README
-Production URL: `https://devstats-taupe.vercel.app`
-
-You can embed a card with a single Markdown image:
+Commits, PRs, issues, stars, and more on one card.
 
 ```md
-![Dohyeon's GitHub stats](https://devstats-taupe.vercel.app/api/card?username=dohy-eon&bg_color=1f2228&text_color=ffffff&title_color=ffffff&v=1)
+[![Stats Card](https://devstats-taupe.vercel.app/api/card?username=YOUR_USERNAME)](https://github.com/dohy-eon/devstats)
 ```
 
-Note: GitHub aggressively caches README images. If updates don’t show up, bump `v=1` to `v=2`.
+### 2. Top languages
 
-## Environment variables
-- **`GITHUB_TOKEN`**: required for GitHub GraphQL requests.
+Show which languages you use most across your repositories.
 
-Local:
-
-```bash
-export GITHUB_TOKEN="YOUR_TOKEN"
+```md
+[![Top Languages](https://devstats-taupe.vercel.app/api/langs?username=YOUR_USERNAME)](https://github.com/dohy-eon/devstats)
 ```
 
-On Vercel:
-- Project Settings → Environment Variables → add `GITHUB_TOKEN`
+### 3. Commit streak
 
-## Local dev
+Current streak and longest streak at a glance.
 
-```bash
-npm install
-npx vercel dev --listen 3000 --yes
+```md
+[![Commit Streak](https://devstats-taupe.vercel.app/api/streak?username=YOUR_USERNAME)](https://github.com/dohy-eon/devstats)
 ```
 
-## Project structure
-- **fetchers**: `src/fetchers/github/*`
-- **renderers**: `src/renderers/*`
-- **themes**: `src/themes/*`
-- **utils**: `src/utils/svg.ts`
+## Query parameters
 
+Append options with `&` after the URL.
+
+| Parameter | Description | Example |
+| :--- | :--- | :--- |
+| `theme` | `xai`, `nord`, `dracula`, `dark`, `default` | `&theme=nord` |
+| `track` / `song` | Spotify track URL, URI, or ID (profile music block) | `&track=…` |
+| `bg_color` | Background hex (no `#`) | `&bg_color=1f2228` |
+| `text_color`, `title_color`, `border_color`, `icon_color`, `muted_color` | Text, border, and accent colors | `&text_color=ffffff` |
+| `year` | Calendar year for activity stats (overall card) | `&year=2024` |
+| `width` / `height` | Card size in px (overall card only; clamped server-side) | `&width=800` |
+| `current` / `longest` | Override streak numbers (overall & streak cards) | `&current=5&longest=30` |
+| `v` | Bust GitHub’s README image cache | `&v=2` |
+
+Production base URL: `https://devstats-taupe.vercel.app`
+
+## Highlights
+
+- **Minimal layout**: Dark-first design aligned with an xAI-style aesthetic (default theme: `xai`).
+- **Fast for README embeds**: Cache headers (`s-maxage`, `stale-while-revalidate`) suited to CDN and GitHub image caching.
+- **Spotify**: Optional `track=` / `song=` for a profile-music row (may require Spotify credentials on the deployment).
+- **SVG**: Crisp at any scale in browsers and on GitHub.
+
+## Tech stack
+
+- **Runtime**: Vercel Serverless Functions (Node.js)
+- **Language**: TypeScript
+- **Data**: GitHub GraphQL API v4
+
+---
+
+**Powered by [devstats](https://github.com/dohy-eon/devstats)**

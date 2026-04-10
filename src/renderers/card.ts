@@ -85,7 +85,7 @@ export function renderUserCard(input: {
   const style = `
     ${uiStyle()}
     .paper { filter: url(#paperShadow); }
-    .paperText { font-family: ${escapeXml("ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif")}; }
+    .paperText { font-family: ${escapeXml('Inter, "SF Pro Display", "Avenir Next", "Helvetica Neue", "Pretendard Variable", Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif')}; }
     .paperMono { font-family: ${escapeXml("ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace")}; }
   `;
 

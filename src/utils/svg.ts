@@ -78,7 +78,8 @@ export function uiFonts(): { mono: string; sans: string } {
   return {
     mono:
       'GeistMono, ui-monospace, SFMono-Regular, Roboto Mono, Menlo, Monaco, "Liberation Mono", "DejaVu Sans Mono", "Courier New", monospace',
-    sans: 'universalSans, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
+    sans:
+      'Inter, "SF Pro Display", "Avenir Next", "Helvetica Neue", "Pretendard Variable", Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif'
   };
 }
 

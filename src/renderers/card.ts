@@ -47,7 +47,6 @@ export function renderUserCard(input: {
   const statGap = space * 3;
   const statW = (contentW - statGap) / 2;
   const periodText = `CONTRIBUTIONS · ${input.year}`;
-  const nowPlayingBlockH = input.nowPlaying ? (tiny ? 16 : compact ? 24 : 28) : 0;
   const barH = 4;
   const barY = height - pad - barH;
   const langLabelY = barY - 10;
@@ -58,11 +57,13 @@ export function renderUserCard(input: {
       `@${input.user.login}`
     )}</text>`
   );
-  body.push(
-    `<text x="${rightX}" y="${topY}" class="mono cap" fill="${escapeXml(tokens.textMuted)}" font-size="12" font-weight="500" text-anchor="end" dominant-baseline="hanging">${escapeXml(
-      String(input.year)
-    )}</text>`
-  );
+  if (input.nowPlaying) {
+    const maxChars = Math.max(16, Math.floor((contentW * 0.52) / (tiny ? 6.6 : 6.9)));
+    const badgeText = clampText(`♪ ${input.nowPlaying.track} — ${input.nowPlaying.artists}`, maxChars);
+    body.push(
+      `<text x="${rightX}" y="${topY}" class="bodyText" fill="${escapeXml(tokens.textMuted)}" font-size="12" font-weight="500" text-anchor="end" dominant-baseline="hanging">${escapeXml(badgeText)}</text>`
+    );
+  }
   body.push(
     `<text x="${leftX}" y="${topY + 24}" class="mono cap" fill="${escapeXml(tokens.textMuted)}" font-size="10" font-weight="500" dominant-baseline="hanging">${escapeXml(
       periodText
@@ -85,7 +86,7 @@ export function renderUserCard(input: {
   const currentText = `CURRENT ${input.streak.current}`;
   const longestText = `LONGEST ${input.streak.longest}`;
   if (tiny) {
-    const streakLineY = Math.min(dividerY + 8, langLabelY - 12 - (input.nowPlaying ? 14 : 0));
+    const streakLineY = Math.min(dividerY + 8, langLabelY - 12);
     body.push(
       `<text x="${leftX}" y="${streakLineY}" class="mono cap" fill="${escapeXml(
         tokens.textMuted
@@ -101,24 +102,6 @@ export function renderUserCard(input: {
     const badgeStartX = leftX + Math.max(0, (contentW - badgesW) / 2);
     body.push(uiBadge(badgeStartX, streakY, currentText, tokens));
     body.push(uiBadge(badgeStartX + firstW + badgeGap, streakY, longestText, tokens));
-  }
-
-  // Metadata area (optional Spotify)
-  if (input.nowPlaying) {
-    const maxChars = Math.max(18, Math.floor(contentW / 8));
-    const metaY = tiny ? barY - 24 : height - pad - nowPlayingBlockH - 24;
-    if (!tiny) {
-      body.push(
-        `<text x="${leftX}" y="${metaY}" class="mono cap" fill="${escapeXml(
-          tokens.textFaint
-        )}" font-size="10" font-weight="500" dominant-baseline="hanging">NOW PLAYING</text>`
-      );
-    }
-    body.push(
-      `<text x="${leftX}" y="${metaY + (tiny ? 0 : 14)}" class="bodyText" fill="${escapeXml(tokens.textMuted)}" font-size="${
-        tiny ? 9 : compact ? 10 : 11
-      }" font-weight="600" dominant-baseline="hanging">${escapeXml(clampText(`${input.nowPlaying.track} — ${input.nowPlaying.artists}`, maxChars))}</text>`
-    );
   }
 
   // Attribute area (full-width language bar)

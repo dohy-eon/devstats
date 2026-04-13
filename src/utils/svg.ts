@@ -6,6 +6,9 @@ export type SvgTheme = {
   muted: string;
   accent: string;
   shadow?: string;
+  surface?: string;
+  surfaceBorder?: string;
+  surfaceMuted?: string;
 };
 
 export type SvgCardOptions = {
@@ -128,6 +131,28 @@ export function uiCard(
   const r = options.radius ?? 0;
   const stroke = options.strokeStrong ? tokens.borderStrong : tokens.border;
   return roundedRect(x, y, w, h, r, { fill: tokens.surface, stroke, strokeWidth: 1 });
+}
+
+export function uiStatBlock(
+  x: number,
+  y: number,
+  label: string,
+  value: string,
+  tokens: UiTokens,
+  options: { width?: number; valueSize?: number; labelSize?: number } = {}
+): string {
+  const w = options.width ?? 120;
+  const valueSize = options.valueSize ?? 24;
+  const labelSize = options.labelSize ?? 10;
+  const cx = x + w / 2;
+  return [
+    `<text x="${cx}" y="${y}" class="mono" fill="${escapeXml(
+      tokens.text
+    )}" font-size="${valueSize}" font-weight="700" text-anchor="middle" dominant-baseline="hanging">${escapeXml(value)}</text>`,
+    `<text x="${cx}" y="${y + valueSize + 10}" class="mono cap" fill="${escapeXml(
+      tokens.textMuted
+    )}" font-size="${labelSize}" font-weight="500" text-anchor="middle" dominant-baseline="hanging">${escapeXml(label)}</text>`
+  ].join("");
 }
 
 export function attrs(input: Record<string, string | number | boolean | undefined>): string {

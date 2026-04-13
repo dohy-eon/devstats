@@ -45,8 +45,11 @@ const THEMES: Record<ThemeName, SvgTheme> = {
     border: "rgba(255, 255, 255, 0.1)",
     title: "#ffffff",
     text: "#ffffff",
-    muted: "rgba(255, 255, 255, 0.7)",
-    accent: "#ffffff"
+    muted: "rgba(255, 255, 255, 0.5)",
+    accent: "#ffffff",
+    surface: "rgba(255, 255, 255, 0.03)",
+    surfaceBorder: "rgba(255, 255, 255, 0.16)",
+    surfaceMuted: "rgba(255, 255, 255, 0.07)"
   }
 };
 

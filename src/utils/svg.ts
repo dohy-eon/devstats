@@ -139,19 +139,30 @@ export function uiStatBlock(
   label: string,
   value: string,
   tokens: UiTokens,
-  options: { width?: number; valueSize?: number; labelSize?: number } = {}
+  options: {
+    width?: number;
+    valueSize?: number;
+    labelSize?: number;
+    align?: "start" | "center";
+    insetX?: number;
+    valueLabelGap?: number;
+  } = {}
 ): string {
   const w = options.width ?? 120;
   const valueSize = options.valueSize ?? 24;
   const labelSize = options.labelSize ?? 10;
-  const cx = x + w / 2;
+  const align = options.align ?? "center";
+  const insetX = options.insetX ?? 0;
+  const valueLabelGap = options.valueLabelGap ?? 10;
+  const textAnchor = align === "start" ? "start" : "middle";
+  const tx = align === "start" ? x + insetX : x + w / 2;
   return [
-    `<text x="${cx}" y="${y}" class="mono" fill="${escapeXml(
+    `<text x="${tx}" y="${y}" class="mono" fill="${escapeXml(
       tokens.text
-    )}" font-size="${valueSize}" font-weight="700" text-anchor="middle" dominant-baseline="hanging">${escapeXml(value)}</text>`,
-    `<text x="${cx}" y="${y + valueSize + 10}" class="mono cap" fill="${escapeXml(
+    )}" font-size="${valueSize}" font-weight="700" text-anchor="${textAnchor}" dominant-baseline="hanging">${escapeXml(value)}</text>`,
+    `<text x="${tx}" y="${y + valueSize + valueLabelGap}" class="mono cap" fill="${escapeXml(
       tokens.textMuted
-    )}" font-size="${labelSize}" font-weight="500" text-anchor="middle" dominant-baseline="hanging">${escapeXml(label)}</text>`
+    )}" font-size="${labelSize}" font-weight="500" text-anchor="${textAnchor}" dominant-baseline="hanging">${escapeXml(label)}</text>`
   ].join("");
 }
 

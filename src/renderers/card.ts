@@ -33,7 +33,6 @@ export function renderUserCard(input: {
   const body: string[] = [];
   const contentW = width - pad * 2;
   const leftX = pad;
-  const rightX = width - pad;
   const topY = pad;
   const sectionGap = space * 2;
   const clampText = (s: string, maxChars: number) => (s.length > maxChars ? `${s.slice(0, Math.max(0, maxChars - 1))}…` : s);
@@ -43,13 +42,13 @@ export function renderUserCard(input: {
     .bodyText { font-family: ${escapeXml('Inter, "SF Pro Display", "Avenir Next", "Helvetica Neue", "Pretendard Variable", Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif')}; }
   `;
 
-  const heroStatY = topY + (tiny ? 44 : 54);
+  const heroStatY = topY + (tiny ? 48 : 56);
   const statGap = space * 3;
   const statW = (contentW - statGap) / 2;
   const periodText = `CONTRIBUTIONS · ${input.year}`;
-  const barH = 4;
+  const barH = 6;
   const barY = height - pad - barH;
-  const langLabelY = barY - 10;
+  const langLabelY = barY - 14;
 
   // Identity area
   body.push(
@@ -58,10 +57,11 @@ export function renderUserCard(input: {
     )}</text>`
   );
   if (input.nowPlaying) {
-    const maxChars = Math.max(16, Math.floor((contentW * 0.52) / (tiny ? 6.6 : 6.9)));
+    const nowPlayingX = leftX + contentW * 0.54;
+    const maxChars = Math.max(16, Math.floor((contentW * 0.44) / (tiny ? 6.6 : 6.9)));
     const badgeText = clampText(`♪ ${input.nowPlaying.track} — ${input.nowPlaying.artists}`, maxChars);
     body.push(
-      `<text x="${rightX}" y="${topY}" class="bodyText" fill="${escapeXml(tokens.textMuted)}" font-size="12" font-weight="500" text-anchor="end" dominant-baseline="hanging">${escapeXml(badgeText)}</text>`
+      `<text x="${nowPlayingX}" y="${topY}" class="bodyText" fill="${escapeXml(tokens.textSecondary)}" font-size="12" font-weight="400" text-anchor="start" dominant-baseline="hanging">${escapeXml(badgeText)}</text>`
     );
   }
   body.push(
@@ -72,11 +72,23 @@ export function renderUserCard(input: {
 
   // Performance area
   const heroValueSize = tiny ? 16 : compact ? 20 : 24;
-  body.push(uiStatBlock(leftX, heroStatY, "COMMITS", input.activity.totalCommits.toLocaleString("en-US"), tokens, { width: statW, valueSize: heroValueSize }));
+  const statInsetX = tiny ? 2 : 4;
+  body.push(
+    uiStatBlock(leftX, heroStatY, "COMMITS", input.activity.totalCommits.toLocaleString("en-US"), tokens, {
+      width: statW,
+      valueSize: heroValueSize,
+      align: "start",
+      insetX: statInsetX,
+      valueLabelGap: 6
+    })
+  );
   body.push(
     uiStatBlock(leftX + statW + statGap, heroStatY, "PULL REQUESTS", input.activity.totalPrs.toLocaleString("en-US"), tokens, {
       width: statW,
-      valueSize: heroValueSize
+      valueSize: heroValueSize,
+      align: "start",
+      insetX: statInsetX,
+      valueLabelGap: 6
     })
   );
   const dividerY = heroStatY + (tiny ? 42 : compact ? 54 : 60);
@@ -86,7 +98,7 @@ export function renderUserCard(input: {
   const currentText = `CURRENT ${input.streak.current}`;
   const longestText = `LONGEST ${input.streak.longest}`;
   if (tiny) {
-    const streakLineY = Math.min(dividerY + 8, langLabelY - 12);
+    const streakLineY = Math.min(dividerY + 12, langLabelY - 12);
     body.push(
       `<text x="${leftX}" y="${streakLineY}" class="mono cap" fill="${escapeXml(
         tokens.textMuted
@@ -114,11 +126,11 @@ export function renderUserCard(input: {
     .map((l) => `${l.name} ${Math.round((l.bytes / Math.max(1, totalBytes)) * 100)}%`)
     .join(" · ");
   body.push(
-    `<text x="${leftX}" y="${barY - 10}" class="mono" fill="${escapeXml(tokens.textMuted)}" font-size="10" font-weight="500" dominant-baseline="hanging">${escapeXml(
+    `<text x="${leftX}" y="${langLabelY}" class="mono" fill="${escapeXml(tokens.textSecondary)}" font-size="10" font-weight="400" dominant-baseline="hanging">${escapeXml(
       langLabel || "NO LANGUAGE DATA"
     )}</text>`
   );
-  body.push(roundedRect(barX, barY, barW, barH, 0, { fill: tokens.border }));
+  body.push(roundedRect(barX, barY, barW, barH, 0, { fill: tokens.borderStrong }));
   let cursor = barX;
   for (let i = 0; i < top.length; i++) {
     const l = top[i]!;

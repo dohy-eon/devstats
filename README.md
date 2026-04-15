@@ -5,6 +5,10 @@
 > **GitHub 프로필을 xAI 스타일의 미니멀한 SVG 카드로 바꿔 보세요.**  
 > `devstats`는 Vercel Serverless Functions와 GitHub API로 실시간 활동·통계를 SVG로 렌더링하는 오픈소스입니다.
 
+## Preview
+
+![devstats preview](./preview-180.svg)
+
 ## 빠른 시작
 
 아래 마크다운을 **그대로 복사**해 본인 GitHub 프로필 `README.md`에 붙여넣으세요.  

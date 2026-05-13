@@ -44,7 +44,11 @@ export function renderUserCard(input: {
 
   const heroStatY = topY + (tiny ? 48 : 56);
   const statGap = space * 3;
-  const statW = (contentW - statGap) / 2;
+  const commitsW = (contentW - statGap) / 2;
+  const rightW = commitsW;
+  const prIssueGap = space * 2;
+  const prBlockW = (rightW - prIssueGap) / 2;
+  const prLabel = prBlockW < 78 ? "PRS" : "PULL REQUESTS";
   const periodText = `CONTRIBUTIONS · ${input.year}`;
   const barH = 6;
   const barY = height - pad - barH;
@@ -73,9 +77,10 @@ export function renderUserCard(input: {
   // Performance area
   const heroValueSize = tiny ? 16 : compact ? 20 : 24;
   const statInsetX = tiny ? 2 : 4;
+  const rightX = leftX + commitsW + statGap;
   body.push(
     uiStatBlock(leftX, heroStatY, "COMMITS", input.activity.totalCommits.toLocaleString("en-US"), tokens, {
-      width: statW,
+      width: commitsW,
       valueSize: heroValueSize,
       align: "start",
       insetX: statInsetX,
@@ -83,8 +88,17 @@ export function renderUserCard(input: {
     })
   );
   body.push(
-    uiStatBlock(leftX + statW + statGap, heroStatY, "PULL REQUESTS", input.activity.totalPrs.toLocaleString("en-US"), tokens, {
-      width: statW,
+    uiStatBlock(rightX, heroStatY, prLabel, input.activity.totalPrs.toLocaleString("en-US"), tokens, {
+      width: prBlockW,
+      valueSize: heroValueSize,
+      align: "start",
+      insetX: statInsetX,
+      valueLabelGap: 6
+    })
+  );
+  body.push(
+    uiStatBlock(rightX + prBlockW + prIssueGap, heroStatY, "ISSUES", input.activity.totalIssues.toLocaleString("en-US"), tokens, {
+      width: prBlockW,
       valueSize: heroValueSize,
       align: "start",
       insetX: statInsetX,

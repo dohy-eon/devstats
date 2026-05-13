@@ -3,6 +3,7 @@ import { githubGraphql } from "./client";
 export type GitHubActivityStats = {
   totalCommits: number;
   totalPrs: number;
+  totalIssues: number;
   mergedPrsAllTime: number;
 };
 
@@ -11,6 +12,7 @@ type ActivityQueryData = {
     contributionsCollection: {
       totalCommitContributions: number;
       totalPullRequestContributions: number;
+      totalIssueContributions: number;
     };
   } | null;
   mergedPrs: {
@@ -24,6 +26,7 @@ const ACTIVITY_QUERY = /* GraphQL */ `
       contributionsCollection(from: $from, to: $to) {
         totalCommitContributions
         totalPullRequestContributions
+        totalIssueContributions
       }
     }
     mergedPrs: search(query: $mergedQuery, type: ISSUE, first: 1) {
@@ -54,6 +57,7 @@ export async function fetchActivityStats(login: string, options: { year?: number
   return {
     totalCommits: data.user.contributionsCollection.totalCommitContributions,
     totalPrs: data.user.contributionsCollection.totalPullRequestContributions,
+    totalIssues: data.user.contributionsCollection.totalIssueContributions,
     mergedPrsAllTime: data.mergedPrs.issueCount
   };
 }

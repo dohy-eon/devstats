@@ -43,12 +43,12 @@ export function renderUserCard(input: {
   `;
 
   const heroStatY = topY + (tiny ? 48 : 56);
-  const statGap = space * 3;
-  const commitsW = (contentW - statGap) / 2;
-  const rightW = commitsW;
-  const prIssueGap = space * 2;
-  const prBlockW = (rightW - prIssueGap) / 2;
-  const prLabel = prBlockW < 78 ? "PRS" : "PULL REQUESTS";
+  const statGap = space * 2;
+  const colW = (contentW - 2 * statGap) / 3;
+  const prLabel = colW < 72 ? "PRS" : "PULL REQUESTS";
+  const col1X = leftX;
+  const col2X = leftX + colW + statGap;
+  const col3X = leftX + 2 * (colW + statGap);
   const periodText = `CONTRIBUTIONS · ${input.year}`;
   const barH = 6;
   const barY = height - pad - barH;
@@ -77,10 +77,9 @@ export function renderUserCard(input: {
   // Performance area
   const heroValueSize = tiny ? 16 : compact ? 20 : 24;
   const statInsetX = tiny ? 2 : 4;
-  const rightX = leftX + commitsW + statGap;
   body.push(
-    uiStatBlock(leftX, heroStatY, "COMMITS", input.activity.totalCommits.toLocaleString("en-US"), tokens, {
-      width: commitsW,
+    uiStatBlock(col1X, heroStatY, "COMMITS", input.activity.totalCommits.toLocaleString("en-US"), tokens, {
+      width: colW,
       valueSize: heroValueSize,
       align: "start",
       insetX: statInsetX,
@@ -88,8 +87,8 @@ export function renderUserCard(input: {
     })
   );
   body.push(
-    uiStatBlock(rightX, heroStatY, prLabel, input.activity.totalPrs.toLocaleString("en-US"), tokens, {
-      width: prBlockW,
+    uiStatBlock(col2X, heroStatY, prLabel, input.activity.totalPrs.toLocaleString("en-US"), tokens, {
+      width: colW,
       valueSize: heroValueSize,
       align: "start",
       insetX: statInsetX,
@@ -97,8 +96,8 @@ export function renderUserCard(input: {
     })
   );
   body.push(
-    uiStatBlock(rightX + prBlockW + prIssueGap, heroStatY, "ISSUES", input.activity.totalIssues.toLocaleString("en-US"), tokens, {
-      width: prBlockW,
+    uiStatBlock(col3X, heroStatY, "ISSUES", input.activity.totalIssues.toLocaleString("en-US"), tokens, {
+      width: colW,
       valueSize: heroValueSize,
       align: "start",
       insetX: statInsetX,

@@ -42,13 +42,18 @@ const cardInput = {
   theme: resolveTheme(mock.theme)
 } satisfies Parameters<typeof renderCard>[0];
 
-const previews: Array<{ path: string; height?: number }> = [
+const previews: Array<{ path: string; height?: number; theme?: string }> = [
   { path: path.join(cwd, "preview.svg") },
-  { path: path.join(cwd, "preview-180.svg"), height: 180 }
+  { path: path.join(cwd, "preview-180.svg"), height: 180 },
+  { path: path.join(cwd, "preview-light-180.svg"), height: 180, theme: "light" }
 ];
 
-for (const { path: outPath, height } of previews) {
-  const svg = renderCard(height !== undefined ? { ...cardInput, height } : cardInput);
+for (const { path: outPath, height, theme: themeName } of previews) {
+  const svg = renderCard({
+    ...cardInput,
+    theme: resolveTheme(themeName ?? mock.theme),
+    ...(height !== undefined ? { height } : {})
+  });
   fs.writeFileSync(outPath, svg, "utf8");
   console.log(`updated ${path.relative(cwd, outPath)}`);
 }

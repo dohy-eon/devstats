@@ -63,18 +63,58 @@ export type UiTokens = {
   textFaint: string;
 };
 
-export function xaiTokens(): UiTokens {
+export function isLightColor(color: string): boolean {
+  const rgba = color.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+  if (rgba) {
+    const r = Number(rgba[1]);
+    const g = Number(rgba[2]);
+    const b = Number(rgba[3]);
+    return 0.299 * r + 0.587 * g + 0.114 * b > 180;
+  }
+  const hex = normalizeHexColor(color);
+  if (!hex) return false;
+  const r = Number.parseInt(hex.slice(1, 3), 16);
+  const g = Number.parseInt(hex.slice(3, 5), 16);
+  const b = Number.parseInt(hex.slice(5, 7), 16);
+  return 0.299 * r + 0.587 * g + 0.114 * b > 180;
+}
+
+function textWithAlpha(color: string, alpha: number): string {
+  const hex = normalizeHexColor(color);
+  if (!hex) return `rgba(0, 0, 0, ${alpha})`;
+  const r = Number.parseInt(hex.slice(1, 3), 16);
+  const g = Number.parseInt(hex.slice(3, 5), 16);
+  const b = Number.parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+export function themeToTokens(theme: SvgTheme): UiTokens {
+  const light = isLightColor(theme.bg);
   return {
-    bg: "#1f2228",
-    surface: "rgba(255, 255, 255, 0.03)",
-    surfaceHover: "rgba(255, 255, 255, 0.08)",
-    border: "rgba(255, 255, 255, 0.10)",
-    borderStrong: "rgba(255, 255, 255, 0.20)",
-    text: "#ffffff",
-    textSecondary: "rgba(255, 255, 255, 0.70)",
-    textMuted: "rgba(255, 255, 255, 0.50)",
-    textFaint: "rgba(255, 255, 255, 0.30)"
+    bg: theme.bg,
+    surface: theme.surface ?? (light ? "rgba(0, 0, 0, 0.02)" : "rgba(255, 255, 255, 0.03)"),
+    surfaceHover: theme.surfaceMuted ?? (light ? "rgba(0, 0, 0, 0.06)" : "rgba(255, 255, 255, 0.08)"),
+    border: theme.border,
+    borderStrong: theme.surfaceBorder ?? (light ? "rgba(0, 0, 0, 0.12)" : "rgba(255, 255, 255, 0.20)"),
+    text: theme.text,
+    textSecondary: light ? textWithAlpha(theme.text, 0.7) : "rgba(255, 255, 255, 0.70)",
+    textMuted: theme.muted,
+    textFaint: light ? textWithAlpha(theme.text, 0.35) : "rgba(255, 255, 255, 0.30)"
   };
+}
+
+export function xaiTokens(): UiTokens {
+  return themeToTokens({
+    bg: "#1f2228",
+    border: "rgba(255, 255, 255, 0.10)",
+    title: "#ffffff",
+    text: "#ffffff",
+    muted: "rgba(255, 255, 255, 0.50)",
+    accent: "#ffffff",
+    surface: "rgba(255, 255, 255, 0.03)",
+    surfaceBorder: "rgba(255, 255, 255, 0.20)",
+    surfaceMuted: "rgba(255, 255, 255, 0.07)"
+  });
 }
 
 export function uiFonts(): { mono: string; sans: string } {

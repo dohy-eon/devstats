@@ -1,7 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { renderFallbackStreak, renderStreakCard } from "../src/renderers/streak";
 import { fetchStreak } from "../src/fetchers/github/streak";
-import { getTheme } from "../src/themes";
+import { resolveTheme } from "../src/themes";
+import { pickThemeOverrides } from "../src/themes/overrides";
 
 function getString(q: unknown): string | undefined {
   return typeof q === "string" && q.trim() ? q : undefined;
@@ -22,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   setSvgHeaders(res);
 
   const username = getString(req.query.username);
-  const theme = getTheme(getString(req.query.theme));
+  const theme = resolveTheme(getString(req.query.theme) ?? "xai", pickThemeOverrides(req.query as Record<string, unknown>));
   const current = getInt(req.query.current);
   const longest = getInt(req.query.longest);
 

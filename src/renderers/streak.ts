@@ -1,5 +1,5 @@
 import type { SvgTheme } from "../utils/svg";
-import { escapeXml, roundedRect, svgDoc, textEl, uiBadge, uiStatBlock, uiStyle, xaiTokens } from "../utils/svg";
+import { escapeXml, roundedRect, svgDoc, textEl, uiBadge, uiStatBlock, uiStyle, themeToTokens } from "../utils/svg";
 
 export type StreakInput = {
   username: string;
@@ -12,14 +12,13 @@ export function renderStreakCard(input: StreakInput): string {
   const width = 460;
   const height = 170;
   const { username, current, longest, theme } = input;
-  const tokens = xaiTokens();
+  const tokens = themeToTokens(theme);
   const pad = 24;
   const contentW = width - pad * 2;
   const statGap = 24;
   const statW = (contentW - statGap) / 2;
 
   const body: string[] = [];
-  body.push(roundedRect(0, 0, width, height, 4, { fill: tokens.bg, stroke: tokens.border, strokeWidth: 1 }));
   body.push(
     `<text x="${pad}" y="${pad}" class="mono" fill="${tokens.text}" font-size="18" font-weight="700" dominant-baseline="hanging">${escapeXml(
       username
@@ -42,7 +41,7 @@ export function renderStreakCard(input: StreakInput): string {
     {
       width,
       height,
-      theme: { ...theme, bg: tokens.bg, border: tokens.border, title: tokens.text, text: tokens.text, muted: tokens.textMuted, accent: "#ffffff" },
+      theme,
       borderRadius: 4
     },
     body.join(""),

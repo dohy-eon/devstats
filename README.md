@@ -44,7 +44,7 @@ URL 뒤에 `&`로 옵션을 이어 붙일 수 있습니다.
 
 | 파라미터 | 설명 | 예시 |
 | :--- | :--- | :--- |
-| `theme` | 테마: `xai`, `nord`, `dracula`, `dark`, `default` | `&theme=nord` |
+| `theme` | 테마: `xai`, `light`, `white`, `nord`, `dracula`, `dark`, `default` | `&theme=light` |
 | `track` / `song` | Spotify 트랙 URL · URI · ID(프로필 뮤직 영역) | `&track=트랙ID또는URL` |
 | `bg_color` | 배경색(hex, `#` 없이) | `&bg_color=1f2228` |
 | `text_color`, `title_color`, `border_color`, `icon_color`, `muted_color` | 글자·테두리·강조색 등 | `&text_color=ffffff` |

@@ -1,6 +1,6 @@
 import type { LanguageStat } from "../fetchers/github/languages";
 import type { SvgTheme } from "../utils/svg";
-import { clamp, escapeXml, roundedRect, svgDoc, textEl, uiStyle, xaiTokens } from "../utils/svg";
+import { clamp, escapeXml, roundedRect, svgDoc, textEl, uiStyle, themeToTokens } from "../utils/svg";
 
 export function renderLangsCard(input: {
   username: string;
@@ -11,7 +11,7 @@ export function renderLangsCard(input: {
   const width = 460;
   const height = 190;
   const { username, totalBytes, top, theme } = input;
-  const tokens = xaiTokens();
+  const tokens = themeToTokens(theme);
   const pad = 24;
   const contentW = width - pad * 2;
   const barX = pad;
@@ -21,7 +21,6 @@ export function renderLangsCard(input: {
   const maxBytes = Math.max(...top.map((l) => l.bytes), 1, 1);
 
   const body: string[] = [];
-  body.push(roundedRect(0, 0, width, height, 4, { fill: tokens.bg, stroke: tokens.border, strokeWidth: 1 }));
   body.push(
     `<text x="${pad}" y="${pad}" class="mono" fill="${tokens.text}" font-size="18" font-weight="700" dominant-baseline="hanging">${escapeXml(
       username
@@ -38,7 +37,7 @@ export function renderLangsCard(input: {
       {
         width,
         height,
-        theme: { ...theme, bg: tokens.bg, border: tokens.border, title: tokens.text, text: tokens.text, muted: tokens.textMuted, accent: "#ffffff" },
+        theme,
         borderRadius: 4
       },
       body.join(""),
@@ -71,7 +70,7 @@ export function renderLangsCard(input: {
     {
       width,
       height,
-      theme: { ...theme, bg: tokens.bg, border: tokens.border, title: tokens.text, text: tokens.text, muted: tokens.textMuted, accent: "#ffffff" },
+      theme,
       borderRadius: 4
     },
     body.join(""),

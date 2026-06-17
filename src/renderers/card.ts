@@ -3,7 +3,7 @@ import type { GitHubActivityStats } from "../fetchers/github/activity";
 import type { LanguageStat } from "../fetchers/github/languages";
 import type { SpotifyNowPlaying } from "../fetchers/spotify/types";
 import type { SvgTheme } from "../utils/svg";
-import { clamp, escapeXml, roundedRect, svgDoc, textEl, uiBadge, uiStatBlock, uiStyle, xaiTokens } from "../utils/svg";
+import { clamp, escapeXml, roundedRect, svgDoc, textEl, uiBadge, uiStatBlock, uiStyle, themeToTokens } from "../utils/svg";
 
 function isHexColor(input: unknown): input is string {
   if (typeof input !== "string") return false;
@@ -24,7 +24,7 @@ export function renderUserCard(input: {
 }): string {
   const width = input.width ?? 560;
   const height = input.height ?? 300;
-  const tokens = xaiTokens();
+  const tokens = themeToTokens(input.theme);
   const compact = height <= 200;
   const tiny = height <= 190;
   const pad = tiny ? 16 : compact ? 24 : 32;
@@ -160,7 +160,7 @@ export function renderUserCard(input: {
     {
       width,
       height,
-      theme: { ...input.theme, bg: tokens.bg, border: tokens.border, title: tokens.text, text: tokens.text, muted: tokens.textMuted, accent: "#ffffff" },
+      theme: input.theme,
       borderRadius: 4
     },
     body.join(""),

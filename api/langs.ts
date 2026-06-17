@@ -1,7 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { fetchTopLanguages } from "../src/fetchers/github/languages";
 import { renderFallbackLangs, renderLangsCard } from "../src/renderers/langs";
-import { getTheme } from "../src/themes";
+import { resolveTheme } from "../src/themes";
+import { pickThemeOverrides } from "../src/themes/overrides";
 
 function getString(q: unknown): string | undefined {
   return typeof q === "string" && q.trim() ? q : undefined;
@@ -16,7 +17,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
   setSvgHeaders(res);
 
   const username = getString(req.query.username);
-  const theme = getTheme(getString(req.query.theme));
+  const theme = resolveTheme(getString(req.query.theme) ?? "xai", pickThemeOverrides(req.query as Record<string, unknown>));
 
   if (!username) {
     res.status(400).send(renderFallbackLangs("Missing `username` query param.", theme));

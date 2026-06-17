@@ -1,7 +1,11 @@
 import type { SvgTheme } from "../utils/svg";
 
-export type ThemeName = "default" | "dark" | "nord" | "dracula" | "xai";
+export type ThemeName = "default" | "dark" | "nord" | "dracula" | "xai" | "light";
 export type ThemeOverrides = Partial<Pick<SvgTheme, "bg" | "border" | "title" | "text" | "muted" | "accent" | "shadow">>;
+
+const THEME_ALIASES: Record<string, ThemeName> = {
+  white: "light"
+};
 
 const THEMES: Record<ThemeName, SvgTheme> = {
   default: {
@@ -11,7 +15,10 @@ const THEMES: Record<ThemeName, SvgTheme> = {
     text: "#111827",
     muted: "#6b7280",
     accent: "#2563eb",
-    shadow: "#111827"
+    shadow: "#111827",
+    surface: "rgba(0, 0, 0, 0.02)",
+    surfaceBorder: "rgba(0, 0, 0, 0.12)",
+    surfaceMuted: "rgba(0, 0, 0, 0.06)"
   },
   dark: {
     bg: "#0b1020",
@@ -48,17 +55,32 @@ const THEMES: Record<ThemeName, SvgTheme> = {
     muted: "rgba(255, 255, 255, 0.5)",
     accent: "#ffffff",
     surface: "rgba(255, 255, 255, 0.03)",
-    surfaceBorder: "rgba(255, 255, 255, 0.16)",
+    surfaceBorder: "rgba(255, 255, 255, 0.20)",
     surfaceMuted: "rgba(255, 255, 255, 0.07)"
+  },
+  light: {
+    bg: "#ffffff",
+    border: "rgba(0, 0, 0, 0.10)",
+    title: "#0d1117",
+    text: "#0d1117",
+    muted: "rgba(13, 17, 23, 0.50)",
+    accent: "#0969da",
+    shadow: "#000000",
+    surface: "rgba(0, 0, 0, 0.02)",
+    surfaceBorder: "rgba(0, 0, 0, 0.12)",
+    surfaceMuted: "rgba(0, 0, 0, 0.06)"
   }
 };
 
 export function getTheme(name: string | undefined): SvgTheme {
-  const key = (name ?? "default") as ThemeName;
+  const raw = name ?? "default";
+  const key = (THEME_ALIASES[raw] ?? raw) as ThemeName;
   return THEMES[key] ?? THEMES.default;
 }
 
 export function resolveTheme(name: string | undefined, overrides: ThemeOverrides = {}): SvgTheme {
-  return { ...getTheme(name), ...overrides };
+  const raw = name ?? "default";
+  const key = (THEME_ALIASES[raw] ?? raw) as ThemeName;
+  return { ...(THEMES[key] ?? THEMES.default), ...overrides };
 }
 

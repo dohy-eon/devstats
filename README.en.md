@@ -52,7 +52,7 @@ Append options with `&` after the URL.
 
 | Parameter | Description | Example |
 | :--- | :--- | :--- |
-| `theme` | `xai`, `nord`, `dracula`, `dark`, `default` | `&theme=nord` |
+| `theme` | `xai`, `light`, `white`, `nord`, `dracula`, `dark`, `default` | `&theme=light` |
 | `track` / `song` | Spotify track URL, URI, or ID (profile music block) | `&track=…` |
 | `bg_color` | Background hex (no `#`) | `&bg_color=1f2228` |
 | `text_color`, `title_color`, `border_color`, `icon_color`, `muted_color` | Text, border, and accent colors | `&text_color=ffffff` |
